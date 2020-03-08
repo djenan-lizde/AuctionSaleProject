@@ -14,6 +14,8 @@ using AuctionSale.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using AuctionSale.Models;
+using AuctionSale.Services;
+using AutoMapper;
 
 namespace AuctionSale
 {
@@ -35,6 +37,10 @@ namespace AuctionSale
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+
+            services.AddScoped<IData<Item>, Data<Item>>();
+            services.AddScoped<IData<BidsItem>, Data<BidsItem>>();
+            services.AddSingleton<IImagesService, ImagesService>();
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
@@ -68,7 +74,7 @@ namespace AuctionSale
                 options.User.RequireUniqueEmail = true;
             });
 
-
+            services.AddAutoMapper(typeof(Startup));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 

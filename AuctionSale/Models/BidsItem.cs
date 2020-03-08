@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AuctionSale.Models
 {
-    public class BidsItem
+    public class BidsItem:IEntity
     {
         public int Id { get; set; }
 

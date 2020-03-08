@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace AuctionSale.Models
 {
-    public class Item
+    public class Item : IEntity
     {
         public int Id { get; set; }
         public string ProductName { get; set; }
