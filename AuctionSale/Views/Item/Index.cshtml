@@ -33,31 +33,52 @@ else
                 <th>
                     @Html.DisplayNameFor(model => model.ProductNumber)
                 </th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var item in Model)
             {
-                var photoPath = "~/images/" + item.Picture;
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ProductName)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Price)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.UnitsInStock)
-                    </td>
-                    <td>
-                        <img class="card-img-top" src="@photoPath" asp-append-version="true" />
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ProductNumber)
-                    </td>
-                </tr>
+                if (!item.IsDeleted)
+                {
+                    var photoPath = "~/images/" + item.Picture;
+                    var seconds = 120;
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ProductName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Price)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UnitsInStock)
+                        </td>
+                        <td>
+                            <img class="card-img-top" src="@photoPath" asp-append-version="true" />
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ProductNumber)
+                        </td>
+                        <td>
+                            <button class="btn btn-primary" onclick="Bid(@item.Id)">Bid</button>
+                            <textarea id="@item.Id" class="timer">@seconds</textarea>
+                        </td>
+                        <td><a class="btn btn-danger" href="/Item/DeleteItem/@item.Id">Delete</a></td>
+                    </tr>
+                }
             }
         </tbody>
     </table>
 }
+<script>
+    function Bid(id) {
+        document.getElementById(id).value = 120;
+    }
+    setInterval(function () {
+        var x = document.getElementsByClassName("timer");
+        for (var i = 0; i < x.length; i++) {
+            x[i].value = x[i].value - 1;
+        }
+    }, 1000);
+</script>
 

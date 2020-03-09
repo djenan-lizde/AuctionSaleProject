@@ -45,5 +45,16 @@ namespace AuctionSale.Controllers
             _dataItem.Add(mappedForDB);
             return RedirectToAction(nameof(Index));
         }
+        public IActionResult DeleteItem(int id)
+        {
+            var model = _dataItem.Get(id);
+            if (model == null) throw new ArgumentNullException();
+
+            model.IsDeleted = true;
+
+            _dataItem.Update(model);
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
