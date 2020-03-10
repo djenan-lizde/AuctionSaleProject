@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AuctionSale.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<User, Role, int>
+    public class ApplicationDbContext : IdentityDbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

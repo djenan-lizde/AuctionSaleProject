@@ -59,7 +59,7 @@ else
                     </td>
                     <td>
                         <button class="btn btn-primary" onclick="Bid(@item.Id)">Bid</button>
-                        <textarea id="@item.Id" class="timer">@seconds</textarea>
+                        <textarea id="@item.Id" class="timer" readonly>@seconds</textarea>
 
                         <span>Current price: </span>
                         <span id="currentPrice-@item.Id">@item.Price</span><br />
