@@ -28,7 +28,12 @@ namespace AuctionSale.Controllers
         }
         public IActionResult Index()
         {
-            return View(_dataItem.Get());
+            var list = _dataItem.Get();
+            var listForView = new List<Item>();
+            foreach (var item in list.Where(x => x.IsDeleted == false))
+                listForView.Add(item);
+
+            return View(listForView);
         }
         public IActionResult Create()
         {
@@ -71,14 +76,14 @@ namespace AuctionSale.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-        public IActionResult UserBid(int id, double currentPrice)
+        public IActionResult UserBid(int id, double newPrice)
         {
             var userBid = new BidsItem()
             {
                 IsDeleted = false,
                 IsWinner = false,
                 ItemId = id,
-                PriceBidded = currentPrice,
+                PriceBidded = newPrice,
                 UserId = 1
             };
             _dataBidsItem.Add(userBid);

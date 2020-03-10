@@ -39,41 +39,38 @@ else
         <tbody>
             @foreach (var item in Model)
             {
-                if (!item.IsDeleted)
-                {
-                    var photoPath = "~/images/" + item.Picture;
-                    var seconds = 120;
-                    <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.ProductName)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Price)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.UnitsInStock)
-                        </td>
-                        <td>
-                            <img class="card-img-top" src="@photoPath" asp-append-version="true" />
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.ProductNumber)
-                        </td>
-                        <td>
-                            <button class="btn btn-primary" onclick="Bid(@item.Id)">Bid</button>
-                            <textarea id="@item.Id" class="timer">@seconds</textarea>
+                var photoPath = "~/images/" + item.Picture;
+                var seconds = 120;
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ProductName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Price)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UnitsInStock)
+                    </td>
+                    <td>
+                        <img class="card-img-top" src="@photoPath" asp-append-version="true" />
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ProductNumber)
+                    </td>
+                    <td>
+                        <button class="btn btn-primary" onclick="Bid(@item.Id)">Bid</button>
+                        <textarea id="@item.Id" class="timer">@seconds</textarea>
 
-                            <span>Current price: </span>
-                            <span id="currentPrice-@item.Id">@item.Price</span><br />
+                        <span>Current price: </span>
+                        <span id="currentPrice-@item.Id">@item.Price</span><br />
 
-                            <input id="50dollars-@item.Id" type="radio" value="50" name="money" /><label>50 $</label><br />
-                            <input id="100dollars-@item.Id" type="radio" value="100" name="money" /><label>100 $</label><br />
-                        </td>
-                        <td>
-                            <a class="btn btn-danger" href="/Item/DeleteItem/@item.Id">Delete</a>
-                        </td>
-                    </tr>
-                }
+                        <input id="50dollars-@item.Id" type="radio" value="50" name="money" /><label>50 $</label><br />
+                        <input id="100dollars-@item.Id" type="radio" value="100" name="money" /><label>100 $</label><br />
+                    </td>
+                    <td>
+                        <a class="btn btn-danger" href="/Item/DeleteItem/@item.Id">Delete</a>
+                    </td>
+                </tr>
             }
         </tbody>
     </table>
@@ -99,37 +96,41 @@ else
 </div>
 
 <script>
-    $(document).ready(function () {
-        function Bid(id) {
-            document.getElementById(id).value = 120;
-            var currentPrice = document.getElementById("currentPrice-" + id).innerHTML;
-            var dollars50 = document.getElementById("50dollars-" + id).value;
-            var dollars100 = document.getElementById("100dollars-" + id).value;
+    function Bid(id) {
+        document.getElementById(id).value = 120;
+        var currentPrice = document.getElementById("currentPrice-" + id).innerHTML;
+        var dollars50 = document.getElementById("50dollars-" + id).value;
+        var dollars100 = document.getElementById("100dollars-" + id).value;
 
-            if (document.getElementById("50dollars-" + id).checked) {
-                document.getElementById("currentPrice-" + id).innerHTML = (parseInt(currentPrice, 10) + parseInt(dollars50, 10)).toString();
-            }
-
-            if (document.getElementById("100dollars-" + id).checked) {
-                document.getElementById("currentPrice-" + id).innerHTML = (parseInt(currentPrice, 10) + parseInt(dollars100, 10)).toString();
-            }
-            console.log(currentPrice);
-            $.ajax({
-                type: "POST",
-                url: "/Item/UserBid?id=" + id + "&" + "?currentPrice=" + currentPrice,
-                data: { id: id, currentPrice: currentPrice },
-                success: function (data) {
-                    $('#myModal').modal('show');
-                }
-            })
+        if (document.getElementById("50dollars-" + id).checked) {
+            document.getElementById("currentPrice-" + id).innerHTML = (parseInt(currentPrice, 10) + parseInt(dollars50, 10)).toString();
+            var newPrice = parseInt(currentPrice, 10) + parseInt(dollars50, 10);
+            ajaxCallPost(id, newPrice);
         }
 
-        setInterval(function () {
-            var x = document.getElementsByClassName("timer");
-            for (var i = 0; i < x.length; i++) {
-                x[i].value -= 1;
+        if (document.getElementById("100dollars-" + id).checked) {
+            document.getElementById("currentPrice-" + id).innerHTML = (parseInt(currentPrice, 10) + parseInt(dollars100, 10)).toString();
+            var newPrice = parseInt(currentPrice, 10) + parseInt(dollars100, 10);
+            ajaxCallPost(id, newPrice);
+        }
+    }
+
+    function ajaxCallPost(id, newPrice) {
+        $.ajax({
+            type: "POST",
+            url: "/Item/UserBid?id=" + id + "&" + "?newPrice=" + newPrice,
+            data: { id: id, newPrice: newPrice },
+            success: function (data) {
+                $('#myModal').modal('show');
             }
-        }, 1000);
-    });
+        });
+    }
+
+    setInterval(function () {
+        var x = document.getElementsByClassName("timer");
+        for (var i = 0; i < x.length; i++) {
+            x[i].value -= 1;
+        }
+    }, 1000);
 </script>
 
