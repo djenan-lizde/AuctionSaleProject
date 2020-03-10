@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using AuctionSale.Models;
 using AuctionSale.Services;
@@ -13,15 +14,17 @@ namespace AuctionSale.Controllers
     public class ItemController : Controller
     {
         private readonly IData<Item> _dataItem;
+        private readonly IData<BidsItem> _dataBidsItem;
         private readonly IMapper _mapper;
         private readonly IImagesService _imagesService;
 
-        public ItemController(IData<Item> dataItem,IMapper mapper,
-            IImagesService imagesService)
+        public ItemController(IData<Item> dataItem, IMapper mapper,
+            IImagesService imagesService, IData<BidsItem> dataBidsItem)
         {
             _dataItem = dataItem;
             _mapper = mapper;
             _imagesService = imagesService;
+            _dataBidsItem = dataBidsItem;
         }
         public IActionResult Index()
         {
@@ -38,12 +41,24 @@ namespace AuctionSale.Controllers
                 uniqueFileName = _imagesService.Upload(model.PicturePath, model.PicturePath.FileName);
 
             var mappedForDB = _mapper.Map<Item>(model);
-            mappedForDB.ProductNumber = new Guid().ToString();
+            Random rnd = new Random();
+            mappedForDB.ProductNumber = GenerateCoupon(10, rnd);
+
             mappedForDB.IsDeleted = false;
-            mappedForDB.Picture=uniqueFileName ?? "N/A";
+            mappedForDB.Picture = uniqueFileName ?? "N/A";
 
             _dataItem.Add(mappedForDB);
             return RedirectToAction(nameof(Index));
+        }
+        public static string GenerateCoupon(int length, Random random)
+        {
+            string characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+            StringBuilder result = new StringBuilder(length);
+            for (int i = 0; i < length; i++)
+            {
+                result.Append(characters[random.Next(characters.Length)]);
+            }
+            return result.ToString();
         }
         public IActionResult DeleteItem(int id)
         {
@@ -54,6 +69,19 @@ namespace AuctionSale.Controllers
 
             _dataItem.Update(model);
 
+            return RedirectToAction(nameof(Index));
+        }
+        public IActionResult UserBid(int id, double currentPrice)
+        {
+            var userBid = new BidsItem()
+            {
+                IsDeleted = false,
+                IsWinner = false,
+                ItemId = id,
+                PriceBidded = currentPrice,
+                UserId = 1
+            };
+            _dataBidsItem.Add(userBid);
             return RedirectToAction(nameof(Index));
         }
     }
