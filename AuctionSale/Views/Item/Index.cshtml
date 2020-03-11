@@ -40,7 +40,7 @@ else
             @foreach (var item in Model)
             {
                 var photoPath = "~/images/" + item.Picture;
-                var seconds = 120;
+                var seconds = 5;
                 <tr>
                     <td>
                         @Html.DisplayFor(modelItem => item.ProductName)
@@ -114,7 +114,6 @@ else
             ajaxCallPost(id, newPrice);
         }
     }
-
     function ajaxCallPost(id, newPrice) {
         $.ajax({
             type: "POST",
@@ -130,7 +129,22 @@ else
         var x = document.getElementsByClassName("timer");
         for (var i = 0; i < x.length; i++) {
             x[i].value -= 1;
+            if (x[i].value == 0) {
+                ajaxDeclareWinner(x[i].id);
+            }
         }
     }, 1000);
+
+    function ajaxDeclareWinner(id) {
+        $.ajax({
+            type: "PUT",
+            url: "/Item/DeclareWinner?id=" + id,
+            data: { id: id },
+            success: function (data) {
+                alert("We have a winner");
+            }
+        });
+    }
+
 </script>
 

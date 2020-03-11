@@ -8,6 +8,8 @@ using AuctionSale.ViewModels;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using System.Threading.Tasks;
 
 namespace AuctionSale.Controllers
 {
@@ -18,14 +20,17 @@ namespace AuctionSale.Controllers
         private readonly IData<BidsItem> _dataBidsItem;
         private readonly IMapper _mapper;
         private readonly IImagesService _imagesService;
+        private readonly UserManager<IdentityUser> _userManager;
 
         public ItemController(IData<Item> dataItem, IMapper mapper,
-            IImagesService imagesService, IData<BidsItem> dataBidsItem)
+            IImagesService imagesService, IData<BidsItem> dataBidsItem,
+            UserManager<IdentityUser> userManager)
         {
             _dataItem = dataItem;
             _mapper = mapper;
             _imagesService = imagesService;
             _dataBidsItem = dataBidsItem;
+            _userManager = userManager;
         }
 
         [AllowAnonymous]
@@ -33,17 +38,15 @@ namespace AuctionSale.Controllers
         {
             var list = _dataItem.Get();
             var listForView = new List<Item>();
-            foreach (var item in list.Where(x => x.IsDeleted == false))
+            foreach (var item in list.Where(x => x.IsDeleted == false && x.IsFinished == false))
                 listForView.Add(item);
 
             return View(listForView);
         }
-
         public IActionResult Create()
         {
             return View(new ItemInputVM());
         }
-
         public IActionResult Save(ItemInputVM model)
         {
             string uniqueFileName = null;
@@ -52,7 +55,7 @@ namespace AuctionSale.Controllers
 
             var mappedForDB = _mapper.Map<Item>(model);
             Random rnd = new Random();
-            mappedForDB.ProductNumber = GenerateCoupon(10, rnd);
+            mappedForDB.ProductNumber = GenerateProductNumber(10, rnd);
 
             mappedForDB.IsDeleted = false;
             mappedForDB.Picture = uniqueFileName ?? "N/A";
@@ -60,7 +63,7 @@ namespace AuctionSale.Controllers
             _dataItem.Add(mappedForDB);
             return RedirectToAction(nameof(Index));
         }
-        public static string GenerateCoupon(int length, Random random)
+        public static string GenerateProductNumber(int length, Random random)
         {
             string characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
             StringBuilder result = new StringBuilder(length);
@@ -70,7 +73,6 @@ namespace AuctionSale.Controllers
             }
             return result.ToString();
         }
-
         public IActionResult DeleteItem(int id)
         {
             var model = _dataItem.Get(id);
@@ -84,15 +86,28 @@ namespace AuctionSale.Controllers
         }
         public IActionResult UserBid(int id, double newPrice)
         {
-            var userBid = new BidsItem()
+            var userBid = new BidsItem
             {
                 IsDeleted = false,
                 IsWinner = false,
                 ItemId = id,
                 PriceBidded = newPrice,
-                UserId = 1
+                UserId = _userManager.GetUserId(HttpContext.User)
             };
             _dataBidsItem.Add(userBid);
+            return RedirectToAction(nameof(Index));
+        }
+        public IActionResult DeclareWinner(int id)
+        {
+            var allBidItems = _dataBidsItem.Get();
+            var product = _dataItem.Get(id);
+
+            var lastItem = allBidItems.LastOrDefault(x => x.ItemId == id);
+
+            product.IsFinished = true;
+            _dataItem.Update(product);
+            lastItem.IsWinner = true;
+            _dataBidsItem.Update(lastItem);
             return RedirectToAction(nameof(Index));
         }
     }

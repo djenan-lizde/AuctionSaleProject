@@ -14,10 +14,7 @@ namespace AuctionSale.Models
         [ForeignKey(nameof(Item))]
         public int ItemId { get; set; }
         public Item Item { get; set; }
-
-        //[ForeignKey(nameof(User))]
-        public int? UserId { get; set; }
-        //public User User { get; set; }
+        public string UserId { get; set; }
         public double PriceBidded { get; set; }
         public bool IsWinner { get; set; }
         public bool IsDeleted { get; set; }

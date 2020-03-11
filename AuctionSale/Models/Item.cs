@@ -20,5 +20,6 @@ namespace AuctionSale.Models
         [Required]
         public string ProductNumber { get; set; }
         public bool IsDeleted { get; set; }
+        public bool IsFinished { get; set; }
     }
 }
