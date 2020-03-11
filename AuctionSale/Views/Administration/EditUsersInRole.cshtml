@@ -1,0 +1,30 @@
+﻿@model List<AuctionSale.ViewModels.UserRoleViewModel>
+@{
+    ViewData["Title"] = "EditUsersInRole";
+    var roleId = ViewBag.roleId;
+}
+
+<h1>EditUsersInRole</h1>
+
+<form method="post">
+    <div class="card">
+        <div class="card-header">
+            <h2>Add or remove users from this role</h2>
+        </div>
+        <div class="card-body">
+            @foreach (var item in Model)
+            {
+                <div class="form-check m-1">
+                    <input asp-for="@item.IsSelected" class="form-check-input"/>
+                    <label class="form-check-label">
+                        @item.UserName
+                    </label>
+                </div>
+            }
+        </div>
+        <div class="card-footer">
+            <input type="submit" value="Update" class="btn btn-primary" style="width:auto"/>
+            <a href="/Administration/EditRole/@roleId" class="btn btn-primary" style="width:auto">Cancel</a>
+        </div>
+    </div>
+</form>
