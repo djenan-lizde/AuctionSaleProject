@@ -6,10 +6,12 @@ using AuctionSale.Models;
 using AuctionSale.Services;
 using AuctionSale.ViewModels;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuctionSale.Controllers
 {
+    [Authorize]
     public class ItemController : Controller
     {
         private readonly IData<Item> _dataItem;
@@ -25,6 +27,8 @@ namespace AuctionSale.Controllers
             _imagesService = imagesService;
             _dataBidsItem = dataBidsItem;
         }
+
+        [AllowAnonymous]
         public IActionResult Index()
         {
             var list = _dataItem.Get();
@@ -34,10 +38,12 @@ namespace AuctionSale.Controllers
 
             return View(listForView);
         }
+
         public IActionResult Create()
         {
             return View(new ItemInputVM());
         }
+
         public IActionResult Save(ItemInputVM model)
         {
             string uniqueFileName = null;
@@ -64,6 +70,7 @@ namespace AuctionSale.Controllers
             }
             return result.ToString();
         }
+
         public IActionResult DeleteItem(int id)
         {
             var model = _dataItem.Get(id);
