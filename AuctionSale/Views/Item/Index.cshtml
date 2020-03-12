@@ -31,9 +31,6 @@ else
                     @Html.DisplayNameFor(model => model.Price)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.UnitsInStock)
-                </th>
-                <th>
                     @Html.DisplayNameFor(model => model.Picture)
                 </th>
                 <th>
@@ -46,16 +43,13 @@ else
             @foreach (var item in Model)
             {
                 var photoPath = "~/images/" + item.Picture;
-                var seconds = 120;
+                TimeSpan span = item.EndTime.Subtract(DateTime.Now);
                 <tr>
                     <td>
                         @Html.DisplayFor(modelItem => item.ProductName)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Price)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.UnitsInStock)
                     </td>
                     <td>
                         <img class="card-img-top" src="@photoPath" asp-append-version="true" />
@@ -66,18 +60,27 @@ else
                     <td>
                         @if (SignInManager.IsSignedIn(User))
                         {
-                            <button class="btn btn-primary" onclick="Bid(@item.Id)">Bid</button>
-                            <textarea id="@item.Id" class="timer" readonly>@seconds</textarea>
+                            if (item.EndTime > DateTime.Now)
+                            {
+                                <button class="btn btn-primary" onclick="Bid(@item.Id)">Bid</button>
+                                <textarea id="@item.Id" class="timer" readonly>
+                                    @span.Seconds
+                                </textarea><br />
 
-                            <span>Current price: </span>
-                            <span id="currentPrice-@item.Id">@item.Price</span><br />
+                                <span>Current price: </span>
+                                <span id="currentPrice-@item.Id">@item.Price</span><br />
 
-                            <input id="50dollars-@item.Id" type="radio" value="50" name="money" /><label>50 $</label><br />
-                            <input id="100dollars-@item.Id" type="radio" value="100" name="money" /><label>100 $</label><br />
+                                <input id="50dollars-@item.Id" type="radio" value="50" name="money" /><label>50 $</label><br />
+                                <input id="100dollars-@item.Id" type="radio" value="100" name="money" /><label>100 $</label><br />
+                            }
+                            else
+                            {
+                                <h1>Soooooolllllddd!!!</h1>
+                            }
                         }
                         else
                         {
-                            <textarea id="@item.Id" class="timer" readonly>@seconds</textarea><br />
+                            <textarea id="@item.Id" class="timer" readonly>@span.Seconds</textarea><br />
                             <span>Current price: </span>
                             <span id="currentPrice-@item.Id">@item.Price</span><br />
                         }
@@ -115,7 +118,9 @@ else
 
 <script>
     function Bid(id) {
-        document.getElementById(id).value = 120;
+        var object = new Date();
+        document.getElementById(id).value = (object.setMinutes(object.getMinutes() +2)).toString();
+
         var currentPrice = document.getElementById("currentPrice-" + id).innerHTML;
         var dollars50 = document.getElementById("50dollars-" + id).value;
         var dollars100 = document.getElementById("100dollars-" + id).value;

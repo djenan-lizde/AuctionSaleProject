@@ -14,7 +14,7 @@ namespace AuctionSale.Models
         [Required]
         public double Price { get; set; }
         [Required]
-        public int UnitsInStock { get; set; }
+        public DateTime EndTime { get; set; }
         [Required]
         public string Picture { get; set; }
         [Required]

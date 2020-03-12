@@ -61,6 +61,8 @@ namespace AuctionSale.Controllers
 
             mappedForDB.IsDeleted = false;
             mappedForDB.Picture = uniqueFileName ?? "N/A";
+            DateTime currentTime = DateTime.Now;
+            mappedForDB.EndTime= currentTime.AddMinutes(2);
 
             _dataItem.Add(mappedForDB);
             return RedirectToAction(nameof(Index));
