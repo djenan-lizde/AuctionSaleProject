@@ -110,7 +110,6 @@ namespace AuctionSale.Controllers
             await _roleManager.DeleteAsync(role);
             return RedirectToAction("ListRoles");
         }
-
         [HttpGet]
         public async Task<IActionResult> EditUsersInRole(string roleId)
         {
@@ -121,6 +120,7 @@ namespace AuctionSale.Controllers
             {
                 throw new ArgumentNullException();
             }
+
             var model = new List<UserRoleViewModel>();
 
             foreach (var user in _userManager.Users)
@@ -141,6 +141,41 @@ namespace AuctionSale.Controllers
                 model.Add(userRoleViewModel);
             }
             return View(model);
+        }
+        [HttpPost]
+        public async Task<IActionResult> EditUsersInRole(List<UserRoleViewModel> model, string roleId)
+        {
+            var role = await _roleManager.FindByIdAsync(roleId);
+            if (role == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            for (int i = 0; i < model.Count; i++)
+            {
+                var user = await _userManager.FindByIdAsync(model[i].UserId);
+
+                IdentityResult result = null;
+
+                if (model[i].IsSelected && !(await _userManager.IsInRoleAsync(user, role.Name)))
+                {
+                    result = await _userManager.AddToRoleAsync(user, role.Name);
+                }
+                else if (!model[i].IsSelected && await _userManager.IsInRoleAsync(user, role.Name))
+                {
+                    result = await _userManager.RemoveFromRoleAsync(user, role.Name);
+                }
+                else
+                {
+                    continue;
+                }
+                if (result.Succeeded)
+                {
+                    if (i < (model.Count() - 1)) { continue; }
+                    else { return RedirectToAction("EditRole", new { Id = roleId }); }
+                }
+            }
+            return RedirectToAction("EditRole", new { Id = roleId });
         }
     }
 }
