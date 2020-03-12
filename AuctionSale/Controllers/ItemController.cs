@@ -81,6 +81,16 @@ namespace AuctionSale.Controllers
             var model = _dataItem.Get(id);
             if (model == null) throw new ArgumentNullException();
 
+            var bidsItem = _dataBidsItem.Get();
+            foreach (var item in bidsItem)
+            {
+                if (item.ItemId == model.Id)
+                {
+                    item.IsDeleted = true;
+                    //_dataBidsItem.Update(item);
+                }
+            }
+
             model.IsDeleted = true;
 
             _dataItem.Update(model);
@@ -100,18 +110,23 @@ namespace AuctionSale.Controllers
             _dataBidsItem.Add(userBid);
             return RedirectToAction(nameof(Index));
         }
-        [Authorize(Roles = "Admin")]
         public IActionResult DeclareWinner(int id)
         {
             var allBidItems = _dataBidsItem.Get();
             var product = _dataItem.Get(id);
 
             var lastItem = allBidItems.LastOrDefault(x => x.ItemId == id);
+            if (lastItem == null)
+            {
+                return RedirectToAction("DeleteItem", new { id = product.Id });
+            }
 
             product.IsFinished = true;
             _dataItem.Update(product);
+
             lastItem.IsWinner = true;
             _dataBidsItem.Update(lastItem);
+
             return RedirectToAction(nameof(Index));
         }
     }

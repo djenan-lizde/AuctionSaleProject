@@ -1,14 +1,20 @@
 ﻿@model IEnumerable<AuctionSale.Models.Item>
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
 
 @{
     ViewData["Title"] = "Index";
 }
 
 <h1>Index</h1>
+@if (User.IsInRole("Admin"))
+{
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+}
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 @if (!Model.Any())
 {
     <p>We don't have anything in DB!</p>
@@ -40,7 +46,7 @@ else
             @foreach (var item in Model)
             {
                 var photoPath = "~/images/" + item.Picture;
-                var seconds = 5;
+                var seconds = 120;
                 <tr>
                     <td>
                         @Html.DisplayFor(modelItem => item.ProductName)
@@ -58,18 +64,30 @@ else
                         @Html.DisplayFor(modelItem => item.ProductNumber)
                     </td>
                     <td>
-                        <button class="btn btn-primary" onclick="Bid(@item.Id)">Bid</button>
-                        <textarea id="@item.Id" class="timer" readonly>@seconds</textarea>
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <button class="btn btn-primary" onclick="Bid(@item.Id)">Bid</button>
+                            <textarea id="@item.Id" class="timer" readonly>@seconds</textarea>
 
-                        <span>Current price: </span>
-                        <span id="currentPrice-@item.Id">@item.Price</span><br />
+                            <span>Current price: </span>
+                            <span id="currentPrice-@item.Id">@item.Price</span><br />
 
-                        <input id="50dollars-@item.Id" type="radio" value="50" name="money" /><label>50 $</label><br />
-                        <input id="100dollars-@item.Id" type="radio" value="100" name="money" /><label>100 $</label><br />
+                            <input id="50dollars-@item.Id" type="radio" value="50" name="money" /><label>50 $</label><br />
+                            <input id="100dollars-@item.Id" type="radio" value="100" name="money" /><label>100 $</label><br />
+                        }
+                        else
+                        {
+                            <textarea id="@item.Id" class="timer" readonly>@seconds</textarea><br />
+                            <span>Current price: </span>
+                            <span id="currentPrice-@item.Id">@item.Price</span><br />
+                        }
                     </td>
-                    <td>
-                        <a class="btn btn-danger" href="/Item/DeleteItem/@item.Id">Delete</a>
-                    </td>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <td>
+                            <a class="btn btn-danger" href="/Item/DeleteItem/@item.Id">Delete</a>
+                        </td>
+                    }
                 </tr>
             }
         </tbody>
@@ -124,27 +142,17 @@ else
             }
         });
     }
-
     setInterval(function () {
         var x = document.getElementsByClassName("timer");
         for (var i = 0; i < x.length; i++) {
             x[i].value -= 1;
             if (x[i].value == 0) {
-                ajaxDeclareWinner(x[i].id);
+                DeclareWinner(x[i].id);
             }
         }
     }, 1000);
-
-    function ajaxDeclareWinner(id) {
-        $.ajax({
-            type: "PUT",
-            url: "/Item/DeclareWinner?id=" + id,
-            data: { id: id },
-            success: function (data) {
-                alert("We have a winner");
-            }
-        });
+    function DeclareWinner(id) {
+        window.location.href='@Url.Action("DeclareWinner", "Item")/' + id;
     }
-
 </script>
 
