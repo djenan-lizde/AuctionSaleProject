@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AuctionSale.Controllers
 {
-    [Authorize]
+    [Authorize(Roles ="Admin")]
     public class AdministrationController : Controller
     {
         private readonly RoleManager<IdentityRole> _roleManager;

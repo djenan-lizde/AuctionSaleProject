@@ -23,7 +23,6 @@ namespace AuctionSale.Controllers
         {
             return View();
         }
-
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
@@ -49,20 +48,17 @@ namespace AuctionSale.Controllers
 
             return View(model);
         }
-
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
-
         [HttpGet]
         public IActionResult Login()
         {
             return View();
         }
-
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model, string returnUrl)
         {

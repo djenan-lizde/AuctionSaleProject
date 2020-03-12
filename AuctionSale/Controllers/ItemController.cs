@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace AuctionSale.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin,Member")]
     public class ItemController : Controller
     {
         private readonly IData<Item> _dataItem;
@@ -43,10 +43,12 @@ namespace AuctionSale.Controllers
 
             return View(listForView);
         }
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View(new ItemInputVM());
         }
+        [Authorize(Roles = "Admin")]
         public IActionResult Save(ItemInputVM model)
         {
             string uniqueFileName = null;
@@ -73,6 +75,7 @@ namespace AuctionSale.Controllers
             }
             return result.ToString();
         }
+        [Authorize(Roles = "Admin")]
         public IActionResult DeleteItem(int id)
         {
             var model = _dataItem.Get(id);
@@ -97,6 +100,7 @@ namespace AuctionSale.Controllers
             _dataBidsItem.Add(userBid);
             return RedirectToAction(nameof(Index));
         }
+        [Authorize(Roles = "Admin")]
         public IActionResult DeclareWinner(int id)
         {
             var allBidItems = _dataBidsItem.Get();
