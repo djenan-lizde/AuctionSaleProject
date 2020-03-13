@@ -101,6 +101,16 @@ namespace AuctionSale.Controllers
         }
         public IActionResult UserBid(int id, double newPrice)
         {
+            var item = _dataItem.Get(id);
+            if (item == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            item.EndTime = item.EndTime.AddMinutes(2);
+
+            _dataItem.Update(item);
+
             var userBid = new BidsItem
             {
                 IsDeleted = false,

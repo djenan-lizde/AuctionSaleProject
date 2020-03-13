@@ -43,7 +43,7 @@ else
             @foreach (var item in Model)
             {
                 var photoPath = "~/images/" + item.Picture;
-                TimeSpan span = item.EndTime.Subtract(DateTime.Now);
+                var dateDiff = item.EndTime - DateTime.Now;
                 <tr>
                     <td>
                         @Html.DisplayFor(modelItem => item.ProductName)
@@ -64,7 +64,7 @@ else
                             {
                                 <button class="btn btn-primary" onclick="Bid(@item.Id)">Bid</button>
                                 <textarea id="@item.Id" class="timer" readonly>
-                                    @span.Seconds
+                                    @((int)((dateDiff).TotalSeconds))
                                 </textarea><br />
 
                                 <span>Current price: </span>
@@ -80,9 +80,19 @@ else
                         }
                         else
                         {
-                            <textarea id="@item.Id" class="timer" readonly>@span.Seconds</textarea><br />
-                            <span>Current price: </span>
-                            <span id="currentPrice-@item.Id">@item.Price</span><br />
+                            @if (item.EndTime > DateTime.Now)
+                            {
+                                <textarea id="@item.Id" class="timer" readonly>
+                                   @((int)((dateDiff).TotalSeconds))
+                                </textarea><br />
+                                <span>Current price: </span>
+                                <span id="currentPrice-@item.Id">@item.Price</span><br />
+                            }
+                            else
+                            {
+                                <h1>Soooooolllllddd!!!</h1>
+                            }
+
                         }
                     </td>
                     @if (User.IsInRole("Admin"))
@@ -118,8 +128,6 @@ else
 
 <script>
     function Bid(id) {
-        var object = new Date();
-        document.getElementById(id).value = (object.setMinutes(object.getMinutes() +2)).toString();
 
         var currentPrice = document.getElementById("currentPrice-" + id).innerHTML;
         var dollars50 = document.getElementById("50dollars-" + id).value;
@@ -128,25 +136,29 @@ else
         if (document.getElementById("50dollars-" + id).checked) {
             document.getElementById("currentPrice-" + id).innerHTML = (parseInt(currentPrice, 10) + parseInt(dollars50, 10)).toString();
             var newPrice = parseInt(currentPrice, 10) + parseInt(dollars50, 10);
-            ajaxCallPost(id, newPrice);
+            window.location.href = "/Item/UserBid?id=" + id + "&newPrice=" + newPrice;
+            //ajaxCallPost(id, newPrice);
         }
 
         if (document.getElementById("100dollars-" + id).checked) {
             document.getElementById("currentPrice-" + id).innerHTML = (parseInt(currentPrice, 10) + parseInt(dollars100, 10)).toString();
             var newPrice = parseInt(currentPrice, 10) + parseInt(dollars100, 10);
-            ajaxCallPost(id, newPrice);
+            window.location.href = "/Item/UserBid?id=" + id + "&newPrice=" + newPrice;
+            //ajaxCallPost(id, newPrice);
         }
     }
+
     function ajaxCallPost(id, newPrice) {
         $.ajax({
             type: "POST",
-            url: "/Item/UserBid?id=" + id + "&" + "?newPrice=" + newPrice,
+            url: "/Item/UserBid?id=" + id + "&newPrice=" + newPrice,
             data: { id: id, newPrice: newPrice },
             success: function (data) {
                 $('#myModal').modal('show');
             }
         });
     }
+
     setInterval(function () {
         var x = document.getElementsByClassName("timer");
         for (var i = 0; i < x.length; i++) {
