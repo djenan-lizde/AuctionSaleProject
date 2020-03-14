@@ -37,6 +37,7 @@ namespace AuctionSale.Controllers
         public IActionResult Index()
         {
             var list = _dataItem.Get();
+
             var listForView = new List<Item>();
             foreach (var item in list.Where(x => x.IsDeleted == false && x.IsFinished == false))
                 listForView.Add(item);
@@ -62,7 +63,7 @@ namespace AuctionSale.Controllers
             mappedForDB.IsDeleted = false;
             mappedForDB.Picture = uniqueFileName ?? "N/A";
             DateTime currentTime = DateTime.Now;
-            mappedForDB.EndTime= currentTime.AddMinutes(2);
+            mappedForDB.EndTime = currentTime.AddMinutes(2);
 
             _dataItem.Add(mappedForDB);
             return RedirectToAction(nameof(Index));
@@ -106,9 +107,7 @@ namespace AuctionSale.Controllers
             {
                 throw new ArgumentNullException();
             }
-
-            item.EndTime = item.EndTime.AddMinutes(2);
-
+            item.Price = newPrice;
             _dataItem.Update(item);
 
             var userBid = new BidsItem
