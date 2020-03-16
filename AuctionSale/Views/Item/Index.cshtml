@@ -17,19 +17,16 @@
 
 @if (!Model.Any())
 {
-    <p>We don't have anything in DB!</p>
+    <p>There is nothing on auction!</p>
 }
 else
 {
-    <table class="table">
+    <table class="table" id="auctionTable">
         <thead>
             <tr>
                 <th>
                     Product name
                 </th>
-                @*<th>
-                    Starting price
-                </th>*@
                 <th>
                     Picture
                 </th>
@@ -59,7 +56,9 @@ else
                         {
                             if (item.EndTime > DateTime.Now)
                             {
-                                <button class="btn btn-primary" onclick="Bid(@item.Id)">Bid</button>
+                                <button class="btn btn-primary" id="myButton" onclick="Bid(@item.Id)">
+                                    Bid
+                                </button>
                                 <textarea id="@item.Id" class="timer" readonly>
                                     @((int)((dateDiff).TotalSeconds))
                                 </textarea><br />
@@ -122,39 +121,3 @@ else
 
     </div>
 </div>
-
-<script>
-    function Bid(id) {
-
-        var currentPrice = document.getElementById("currentPrice-" + id).innerHTML;
-        var dollars50 = document.getElementById("50dollars-" + id).value;
-        var dollars100 = document.getElementById("100dollars-" + id).value;
-
-        if (document.getElementById("50dollars-" + id).checked) {
-            document.getElementById("currentPrice-" + id).innerHTML = (parseInt(currentPrice, 10) + parseInt(dollars50, 10)).toString();
-            var newPrice = parseInt(currentPrice, 10) + parseInt(dollars50, 10);
-            ajaxCallPost(id, newPrice);
-        }
-
-        if (document.getElementById("100dollars-" + id).checked) {
-            document.getElementById("currentPrice-" + id).innerHTML = (parseInt(currentPrice, 10) + parseInt(dollars100, 10)).toString();
-            var newPrice = parseInt(currentPrice, 10) + parseInt(dollars100, 10);
-            ajaxCallPost(id, newPrice);
-        }
-    }
-    function ajaxCallPost(id, newPrice) {
-        $.ajax({
-            type: "POST",
-            url: "/Item/UserBid?id=" + id + "&newPrice=" + newPrice,
-            data: { id: id, newPrice: newPrice },
-            success: function (data) {
-                $('#myModal').modal('show');
-            }
-        });
-    }
-    function DeclareWinner(id) {
-        window.location.href='@Url.Action("DeclareWinner", "Item")/' + id;
-    }
-</script>
-
-
