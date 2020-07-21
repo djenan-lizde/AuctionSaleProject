@@ -5,6 +5,7 @@
 
 @{
     ViewData["Title"] = "Index";
+    var user = ViewBag.User;
 }
 
 <h1>Index</h1>
@@ -14,7 +15,7 @@
         <a asp-action="Create">Create New</a>
     </p>
 }
-
+<input type="hidden" value="@user" id="user"/>
 @if (!Model.Any())
 {
     <p>There is nothing on auction!</p>

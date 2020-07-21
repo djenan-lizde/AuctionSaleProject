@@ -30,22 +30,21 @@ namespace AuctionSale.Services
             _context.SaveChanges();
             return x.Entity;
         }
-
         public IEnumerable<T> Get()
         {
             return entities.AsNoTracking().AsEnumerable();
         }
-
         public T Get(int id)
         {
             return entities.FirstOrDefault(x => x.Id == id);
         }
-
-        public T Get(Expression<Func<T, bool>> predicate)
+        public T Get(Expression<Func<T, bool>> predicate, bool flag)
         {
-            return entities.AsNoTracking().FirstOrDefault(predicate);
+            if (flag)
+                return entities.AsNoTracking().FirstOrDefault(predicate);
+            else
+                return entities.AsNoTracking().LastOrDefault(predicate);
         }
-
         public T Update(T obj)
         {
             if (obj == null)
@@ -57,14 +56,12 @@ namespace AuctionSale.Services
             _context.SaveChanges();
             return obj;
         }
-
         public T Update(int id, T entity)
         {
             _context.Set<T>().Update(entity);
             _context.SaveChanges();
             return entity;
         }
-
         public T Delete(T entity)
         {
             if (entity == null)
@@ -76,13 +73,16 @@ namespace AuctionSale.Services
             _context.SaveChanges();
             return entity;
         }
-
         public T Delete(int id)
         {
             var obj = Get(id);
             entities.Remove(obj);
             _context.SaveChanges();
             return obj;
+        }
+        public IEnumerable<T> GetByCondition(Expression<Func<T, bool>> predicate)
+        {
+            return entities.AsNoTracking().Where(predicate);
         }
     }
 }

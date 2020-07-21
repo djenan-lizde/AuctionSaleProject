@@ -5,6 +5,7 @@
     //kako reaguje klijentska strana
     connection.on("BidUpdate", (message, newPrice, id) => {
         document.getElementById("currentPrice-" + id.toString()).innerHTML = newPrice;
+        //alert zaustavlja vrijeme i sve staje ovo treba popraviti
         alert(message);
     });
 
@@ -14,6 +15,8 @@
     });
 
     connection.start();
+
+    var user = $("#user").val();
 
     $("#AddItemForm").on("submit", function () {
         var message = "Please refresh the browser because new auction item has been added. :D"
@@ -35,7 +38,7 @@
             var newPrice = parseInt(currentPrice, 10) + parseInt(dollars50, 10);
             ajaxCallPost(id, newPrice);
             //napraviti da pise koji user i za sta je biddao
-            var message = "Neko je biddao";
+            var message = user + " je biddovao";
             connection.invoke("Send", message, newPrice, id).catch((err) => {
                 return console.error(err.toString());
             });
@@ -61,7 +64,6 @@
             }
         });
     }
-
 });
 setInterval(function () {
     var x = document.getElementsByClassName("timer");

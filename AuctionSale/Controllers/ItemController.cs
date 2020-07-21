@@ -42,13 +42,16 @@ namespace AuctionSale.Controllers
             foreach (var item in list.Where(x => x.IsDeleted == false && x.IsFinished == false))
                 listForView.Add(item);
 
+            ViewBag.User = _userManager.GetUserName(HttpContext.User);
             return View(listForView);
         }
+
         [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View(new ItemInputVM());
         }
+
         [Authorize(Roles = "Admin")]
         public IActionResult Save(ItemInputVM model)
         {
@@ -78,20 +81,21 @@ namespace AuctionSale.Controllers
             }
             return result.ToString();
         }
+
         [Authorize(Roles = "Admin")]
         public IActionResult DeleteItem(int id)
         {
             var model = _dataItem.Get(id);
-            if (model == null) throw new ArgumentNullException();
+            if (model == null)
+            {
+                return View("ErrorNotFound");
+            }
 
-            var bidsItem = _dataBidsItem.Get();
+            var bidsItem = _dataBidsItem.GetByCondition(x => x.ItemId == model.Id);
             foreach (var item in bidsItem)
             {
-                if (item.ItemId == model.Id)
-                {
-                    item.IsDeleted = true;
-                    //_dataBidsItem.Update(item);
-                }
+                item.IsDeleted = true;
+                //_dataBidsItem.Update(item);
             }
 
             model.IsDeleted = true;
@@ -100,12 +104,13 @@ namespace AuctionSale.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
         public IActionResult UserBid(int id, double newPrice)
         {
             var item = _dataItem.Get(id);
             if (item == null)
             {
-                throw new ArgumentNullException();
+                return View("ErrorNotFound");
             }
             item.Price = newPrice;
             _dataItem.Update(item);
@@ -121,12 +126,12 @@ namespace AuctionSale.Controllers
             _dataBidsItem.Add(userBid);
             return RedirectToAction(nameof(Index));
         }
+
         public IActionResult DeclareWinner(int id)
         {
-            var allBidItems = _dataBidsItem.Get();
             var product = _dataItem.Get(id);
 
-            var lastItem = allBidItems.LastOrDefault(x => x.ItemId == id);
+            var lastItem = _dataBidsItem.Get(x => x.ItemId == id, false);
             if (lastItem == null)
             {
                 return RedirectToAction("DeleteItem", new { id = product.Id });

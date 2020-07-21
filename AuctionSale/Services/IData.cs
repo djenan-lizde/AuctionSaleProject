@@ -10,7 +10,8 @@ namespace AuctionSale.Services
     {
         IEnumerable<T> Get();
         T Get(int id);
-        T Get(Expression<Func<T, bool>> predicate);
+        T Get(Expression<Func<T, bool>> predicate, bool flag);
+        IEnumerable<T> GetByCondition(Expression<Func<T, bool>> predicate);
         T Add(T entity);
         T Update(T entity);
         T Update(int id, T entity);
